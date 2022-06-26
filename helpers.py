@@ -8,11 +8,25 @@ DATABASE_NAME = 'metagenome_classification.db'
 
 #-------- DATA MANIPULATION
 def get_protein_proportions(df):
-    # TODO: Ed's idea - 
     # Each column has counts of "hits" now, but not consistent across observations. 
     # Get proportions each protein appears.
     df = df.div(df.sum(axis=1), axis=0)
     return df
+
+
+def drop_empty_columns(df):
+    """
+    Some Pfams don't have hits in any sample - drop them.
+    :param df: pandas dataframe
+    :ptype: df
+    :return: dataframe with empty columns removed
+    :rtype: df
+    """
+    df.replace(0, np.nan, inplace=True)
+    df.dropna(how='all', axis=1, inplace=True)
+    df.replace(np.nan, 0, inplace=True)
+    return df
+
 
 #-------- DATA SETUP
 def official_data_split():
