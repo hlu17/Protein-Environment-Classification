@@ -94,6 +94,7 @@ def get_test_observations():
     conn.close()
     
     x_test_transposed.set_index('index', inplace=True)
+    x_test = x_test_transposed.T
     x_test_normalized = get_protein_proportions(x_test)
     
     return x_test_normalized
