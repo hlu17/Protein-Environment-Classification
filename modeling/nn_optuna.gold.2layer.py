@@ -20,7 +20,7 @@ def get_training_observations():
     print(f"Getting all training observations from '{DATABASE_NAME}'...")
     conn = sqlite3.connect("..//data//" + DATABASE_NAME)
 
-    x_train_transposed = pd.read_sql_query("SELECT * FROM x_train", con=conn)
+    x_train_transposed = pd.read_sql_query("SELECT * FROM x_train_gold", con=conn)
 
     conn.commit()
     conn.close()
@@ -36,7 +36,7 @@ def get_training_labels():
     print(f"Getting all training labels from '{DATABASE_NAME}'...")
     conn = sqlite3.connect("..//data//" + DATABASE_NAME)
 
-    y_train_transposed = pd.read_sql_query("SELECT * FROM y_train", con=conn)
+    y_train_transposed = pd.read_sql_query("SELECT * FROM y_train_gold", con=conn)
 
     conn.commit()
     conn.close()
@@ -51,7 +51,7 @@ def get_test_observations():
     print(f"Getting all test observations from '{DATABASE_NAME}'...")
     conn = sqlite3.connect("..//data//" + DATABASE_NAME)
 
-    x_test_transposed = pd.read_sql_query("SELECT * FROM x_test", con=conn)
+    x_test_transposed = pd.read_sql_query("SELECT * FROM x_test_gold", con=conn)
 
     conn.commit()
     conn.close()
@@ -66,7 +66,7 @@ def get_test_labels():
     print(f"Getting all test labels from '{DATABASE_NAME}'...")
     conn = sqlite3.connect("..//data//" + DATABASE_NAME)
 
-    y_test_transposed = pd.read_sql_query("SELECT * FROM y_test", con=conn)
+    y_test_transposed = pd.read_sql_query("SELECT * FROM y_test_gold", con=conn)
 
     conn.commit()
     conn.close()
@@ -92,6 +92,9 @@ def build_model(
     dropout=0.0,
     optimizer="Adam",
     learning_rate=0.01,
+    kernel_regularizer=1e-5,
+    bias_regularizer=1e-5,
+    activity_regularizer=1e-5
 ):
     """Build a multi-class logistic regression model using Keras.
 
@@ -113,13 +116,23 @@ def build_model(
 
     for hidden_layer_size in hidden_layer_sizes:
         if hidden_layer_size > n_classes:
-            model.add(keras.layers.Dense(hidden_layer_size))
-            model.add(keras.layers.Activation(activation))
+            model.add(keras.layers.Dense(
+                hidden_layer_size,
+                activation=activation,
+                kernel_regularizer=keras.regularizers.L2(kernel_regularizer),
+                bias_regularizer=keras.regularizers.L2(bias_regularizer),
+                activity_regularizer=keras.regularizers.L2(activity_regularizer)
+            ))
             if dropout > 0:
                 model.add(keras.layers.Dropout(dropout))
 
-    model.add(keras.layers.Dense(n_classes))
-    model.add(keras.layers.Activation(final_layer_activation))
+    model.add(keras.layers.Dense(
+        n_classes,
+        activation=final_layer_activation,
+        kernel_regularizer=keras.regularizers.L2(kernel_regularizer),
+        bias_regularizer=keras.regularizers.L2(bias_regularizer),
+        activity_regularizer=keras.regularizers.L2(activity_regularizer)
+    ))
     opt = None
     if optimizer == "SGD":
         opt = tf.keras.optimizers.SGD(learning_rate=learning_rate)
@@ -140,6 +153,9 @@ def train_model(
     hidden_layer_sizes=[],
     activation="tanh",
     final_layer_activation="softmax",
+    kernel_regularizer=1e-5,
+    bias_regularizer=1e-5,
+    activity_regularizer=1e-5,
     dropout=0.2,
     optimizer="Adam",
     learning_rate=0.01,
@@ -156,6 +172,9 @@ def train_model(
         dropout=dropout,
         optimizer=optimizer,
         learning_rate=learning_rate,
+        kernel_regularizer=kernel_regularizer,
+        bias_regularizer=bias_regularizer,
+        activity_regularizer=activity_regularizer
     )
 
     # Train the model.
@@ -177,7 +196,9 @@ def train_and_evaluate(
     learning_rate: float = 0.01,
     hidden_layer_size1: int = 256,
     hidden_layer_size2: int = 256,
-    hidden_layer_size3: int = 256,
+    kernel_regularizer: float = 1e-5,
+    bias_regularizer: float = 1e-5,
+    activity_regularizer: float = 1e-5,
     dropout: float = 0.0):
 
     # Load data
@@ -188,28 +209,41 @@ def train_and_evaluate(
 
     # convert string labels to numeric
     labels3 = [
-        "Aerosol (non-saline)",
-        "Animal corpus",
-        "Animal proximal gut",
-        "Hypersaline (saline)",
-        "Plant corpus",
-        "Plant rhizosphere",
-        "Plant surface",
-        "Sediment (non-saline)",
-        "Sediment (saline)",
-        "Soil (non-saline)",
-        "Subsurface (non-saline)",
-        "Surface (non-saline)",
-        "Surface (saline)",
-        "Water (non-saline)",
-        "Water (saline)",
+        'Non-marine Saline and Alkaline',
+        'Marine',
+        'Soil',
+        'Freshwater',
+        'Defined media',
+        'Composting',
+        'Digestive system',
+        'Thermal springs',
+        'Rhizoplane',
+        'Unclassified',
+        'Mixed alcohol bioreactor',
+        'Deep subsurface',
+        'Tetrachloroethylene and derivatives',
+        'Volcanic',
+        'Outdoor Air',
+        'Thiocyanate',
+        'Bacteria',
+        'Nutrient removal',
+        'Phylloplane',
+        'Rhizosphere',
+        'Activated Sludge',
+        'Gastrointestinal tract',
+        'Sediment',
+        'Endosphere',
+        'Red algae',
+        'Anaerobic digestor',
+        'Peat moss',
+        'Anaerobic'
     ]
     labels3_map = {}
     n_classes = len(labels3)
     for i in range(0, len(labels3)):
         label = labels3[i]
         labels3_map[label] = i
-    y_train["EMPO_3_int"] = y_train["EMPO_3"].map(labels3_map)
+    y_train["ECOSYSTEM_TYPE_int"] = y_train["ECOSYSTEM_TYPE"].map(labels3_map)
 
     # Split into train/validation if not CV
     X_tr, X_val, Y_tr, Y_val = train_test_split(
@@ -218,9 +252,12 @@ def train_and_evaluate(
 
     nn3 = train_model(
         X_tr,
-        Y_tr["EMPO_3_int"],
+        Y_tr["ECOSYSTEM_TYPE_int"],
         n_classes,
-        hidden_layer_sizes=[hidden_layer_size1, hidden_layer_size2, hidden_layer_size3],
+        hidden_layer_sizes=[hidden_layer_size1, hidden_layer_size2],
+        kernel_regularizer=kernel_regularizer,
+        bias_regularizer=bias_regularizer,
+        activity_regularizer=activity_regularizer,
         dropout=dropout,
         optimizer="Adam",
         learning_rate=learning_rate,
@@ -228,7 +265,7 @@ def train_and_evaluate(
         num_epochs=100,
     )
 
-    evaluation = nn3.evaluate(x=X_val, y=Y_val["EMPO_3_int"], verbose=0, return_dict=True)
+    evaluation = nn3.evaluate(x=X_val, y=Y_val["ECOSYSTEM_TYPE_int"], verbose=0, return_dict=True)
     accuracy = evaluation["accuracy"]
     loss = evaluation["loss"]
 
@@ -237,12 +274,14 @@ def train_and_evaluate(
 
 
 def objective(trial):
-    learning_rate = trial.suggest_float('learning_rate', 0.001, 0.1)
+    learning_rate = trial.suggest_float('learning_rate', 0.0001, 0.01)
     hidden_layer_size1 = trial.suggest_int('hidden_layer_size1', 0, 1024)
     hidden_layer_size2 = trial.suggest_int('hidden_layer_size2', 0, 1024)
-    hidden_layer_size3 = trial.suggest_int('hidden_layer_size3', 0, 1024)
+    kernel_regularizer = trial.suggest_float('kernel_regularizer', 1e-10, 1e-4)
+    bias_regularizer = trial.suggest_float('bias_regularizer', 1e-10, 1e-4)
+    activity_regularizer = trial.suggest_float('activity_regularizer', 1e-10, 1e-4)
     dropout = trial.suggest_float('dropout', 0, 0.1)
-    return train_and_evaluate(learning_rate, hidden_layer_size1, hidden_layer_size2, hidden_layer_size3, dropout)
+    return train_and_evaluate(learning_rate, hidden_layer_size1, hidden_layer_size2, kernel_regularizer, bias_regularizer, activity_regularizer, dropout)
 
 
 # hyperparameter optimization
@@ -251,8 +290,8 @@ study = optuna.create_study(
     sampler=optuna.samplers.TPESampler(),
     pruner=optuna.pruners.MedianPruner(n_warmup_steps=20)
 )
-study.optimize(objective, n_trials=500)
+study.optimize(objective, n_trials=100)
 
 print(study.best_params)
-with open("./nn_optuna.txt", 'w') as fh:
-    fh.write(study.best_params)
+with open("./nn_optuna.gold.2layer.txt", 'w') as fh:
+    fh.write(str(study.best_params))

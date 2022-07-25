@@ -1,0 +1,2 @@
+Best is trial 77 with value: 0.9440000057220459.
+{'learning_rate': 0.0031652775246539945, 'hidden_layer_size1': 759, 'hidden_layer_size2': 148, 'hidden_layer_size3': 584, 'dropout': 0.08421132535429231}
