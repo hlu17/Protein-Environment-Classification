@@ -282,5 +282,5 @@ study = optuna.create_study(
 study.optimize(objective, n_trials=50)
 
 print(study.best_params)
-with open("./nn_optuna.3layer.txt", 'w') as fh:
+with open("./nn_optuna.empo.3layer.txt", 'w') as fh:
     fh.write(str(study.best_params))

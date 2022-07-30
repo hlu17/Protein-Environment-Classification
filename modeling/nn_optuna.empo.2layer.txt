@@ -1,1 +1,1 @@
-{'learning_rate': 0.0035890478612715304, 'hidden_layer_size1': 1011, 'hidden_layer_size2': 993, 'kernel_regularizer': 2.078350211465543e-07, 'bias_regularizer': 8.178417483399558e-05, 'activity_regularizer': 3.3853877053694592e-06, 'dropout': 0.00903543571846712}
+{'learning_rate': 0.007326212911884197, 'hidden_layer_size1': 231, 'hidden_layer_size2': 303, 'kernel_regularizer': 4.451706961739503e-06, 'bias_regularizer': 2.3323384654631857e-05, 'activity_regularizer': 5.427168770907839e-05, 'dropout': 0.06726638582172279}
