@@ -196,6 +196,7 @@ def train_and_evaluate(
     learning_rate: float = 0.01,
     hidden_layer_size1: int = 256,
     hidden_layer_size2: int = 256,
+    hidden_layer_size3: int = 256,
     kernel_regularizer: float = 1e-5,
     bias_regularizer: float = 1e-5,
     activity_regularizer: float = 1e-5,
@@ -241,7 +242,7 @@ def train_and_evaluate(
         X_tr,
         Y_tr["EMPO_3_int"],
         n_classes,
-        hidden_layer_sizes=[hidden_layer_size1, hidden_layer_size2],
+        hidden_layer_sizes=[hidden_layer_size1, hidden_layer_size2, hidden_layer_size3],
         kernel_regularizer=kernel_regularizer,
         bias_regularizer=bias_regularizer,
         activity_regularizer=activity_regularizer,
@@ -264,11 +265,12 @@ def objective(trial):
     learning_rate = trial.suggest_float('learning_rate', 0.0001, 0.01)
     hidden_layer_size1 = trial.suggest_int('hidden_layer_size1', 0, 1024)
     hidden_layer_size2 = trial.suggest_int('hidden_layer_size2', 0, 1024)
+    hidden_layer_size3 = trial.suggest_int('hidden_layer_size3', 0, 1024)
     kernel_regularizer = trial.suggest_float('kernel_regularizer', 1e-10, 1e-4)
     bias_regularizer = trial.suggest_float('bias_regularizer', 1e-10, 1e-4)
     activity_regularizer = trial.suggest_float('activity_regularizer', 1e-10, 1e-4)
     dropout = trial.suggest_float('dropout', 0, 0.1)
-    return train_and_evaluate(learning_rate, hidden_layer_size1, hidden_layer_size2, kernel_regularizer, bias_regularizer, activity_regularizer, dropout)
+    return train_and_evaluate(learning_rate, hidden_layer_size1, hidden_layer_size2, hidden_layer_size3, kernel_regularizer, bias_regularizer, activity_regularizer, dropout)
 
 
 # hyperparameter optimization
@@ -280,5 +282,5 @@ study = optuna.create_study(
 study.optimize(objective, n_trials=50)
 
 print(study.best_params)
-with open("./nn_optuna.2layer.txt", 'w') as fh:
+with open("./nn_optuna.3layer.txt", 'w') as fh:
     fh.write(str(study.best_params))

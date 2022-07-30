@@ -160,7 +160,7 @@ def train_model(
     optimizer="Adam",
     learning_rate=0.01,
     batch_size=64,
-    num_epochs=5,
+    num_epochs=20,
 ):
 
     # Build the model.
@@ -248,7 +248,7 @@ def train_and_evaluate(
         optimizer="Adam",
         learning_rate=learning_rate,
         batch_size=128,
-        num_epochs=100,
+        num_epochs=20,
     )
 
     evaluation = nn3.evaluate(x=X_val, y=Y_val["EMPO_3_int"], verbose=0, return_dict=True)
@@ -275,7 +275,7 @@ study = optuna.create_study(
     sampler=optuna.samplers.TPESampler(),
     pruner=optuna.pruners.MedianPruner(n_warmup_steps=20)
 )
-study.optimize(objective, n_trials=100)
+study.optimize(objective, n_trials=50)
 
 print(study.best_params)
 with open("./nn_optuna.empo.1layer.txt", 'w') as fh:
