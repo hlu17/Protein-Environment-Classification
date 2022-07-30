@@ -279,7 +279,7 @@ study = optuna.create_study(
     sampler=optuna.samplers.TPESampler(),
     pruner=optuna.pruners.MedianPruner(n_warmup_steps=20)
 )
-study.optimize(objective, n_trials=50)
+study.optimize(objective, n_trials=100)
 
 print(study.best_params)
 with open("./nn_optuna.empo.3layer.txt", 'w') as fh:
