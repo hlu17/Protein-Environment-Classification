@@ -1,1 +1,0 @@
-{'learning_rate': 0.002115562495849127, 'hidden_layer_size1': 176, 'hidden_layer_size2': 714, 'hidden_layer_size3': 643, 'kernel_regularizer': 2.3420529376405707e-05, 'bias_regularizer': 5.500336449179811e-05, 'activity_regularizer': 8.228251396126834e-05, 'dropout': 0.010644381548944619}

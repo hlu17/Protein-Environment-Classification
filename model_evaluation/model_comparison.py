@@ -16,15 +16,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from joblib import load
 # sklearn package functions
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import ConfusionMatrixDisplay
 
-def cm(y_true, y_pred):
+def cm(y_true, y_pred, main_bool):
     # Generates a confusion matrix for given y_true and y_pred
-    # load XGB label encoder
-    le=load('../model_joblibs/xgb_labelEncoder.joblib')
+    # load label encoder
+    if main_bool:
+        le = load('model_joblibs/final_labelEncoder.joblib')
+    else:
+        le = load('../model_joblibs/final_labelEncoder.joblib')
     # get list of labels
     labels = np.array(le.classes_)
     # confusion matrix object
@@ -52,10 +55,14 @@ def plot_classification_report(y_true, y_pred):
     display(df)
     
     
-def eval_wrapper(y_true, y_pred):
-    # Prints Accuracy Score and plots the confusion matrix and classification report for a given y_true and y_pred
-    print(f"Accuracy Score", accuracy_score(y_true, y_pred))
+def eval_wrapper(y_true, y_pred, main_bool=False):
+    # Prints F1 Score and plots the confusion matrix and classification report for a given y_true and y_pred
+    if main_bool:
+        le = load('model_joblibs/final_labelEncoder.joblib')
+    else:
+        le = load('../model_joblibs/final_labelEncoder.joblib')
+    print(f"F1 Score", f1_score(le.transform(y_true), le.transform(y_pred), average='weighted'))
     print (f"Confusion Matrix")
-    cm(y_true, y_pred)
+    cm(y_true, y_pred, main_bool)
     print(f"Classification Report")
     plot_classification_report(y_true, y_pred)

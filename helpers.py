@@ -82,9 +82,12 @@ def official_data_split_gold():
     return X_train.reset_index(drop=True), X_test.reset_index(drop=True), Y_train_gold.reset_index(drop=True), Y_test_gold.reset_index(drop=True)
     
 #-------- QUERYING DATABASE
-def get_training_observations():
+def get_training_observations(main_bool=False):
     print(f"Getting all training observations from '{DATABASE_NAME}'...")
-    conn = sqlite3.connect('..//data//' + DATABASE_NAME)
+    if main_bool:
+        conn = sqlite3.connect('data//' + DATABASE_NAME)
+    else:
+        conn = sqlite3.connect('..//data//' + DATABASE_NAME)
     
     x_train_transposed = pd.read_sql_query("SELECT * FROM x_train", con = conn)
     
@@ -97,9 +100,12 @@ def get_training_observations():
     
     return x_train_normalized
 
-def get_training_labels():
+def get_training_labels(main_bool=False):
     print(f"Getting all training labels from '{DATABASE_NAME}'...")
-    conn = sqlite3.connect('..//data//' + DATABASE_NAME)
+    if main_bool:
+        conn = sqlite3.connect('data//' + DATABASE_NAME)
+    else:
+        conn = sqlite3.connect('..//data//' + DATABASE_NAME)
     
     y_train_transposed = pd.read_sql_query("SELECT * FROM y_train", con = conn)
     
@@ -111,9 +117,12 @@ def get_training_labels():
     
     return y_train
 
-def get_test_observations():
+def get_test_observations(main_bool=False):
     print(f"Getting all test observations from '{DATABASE_NAME}'...")
-    conn = sqlite3.connect('..//data//' + DATABASE_NAME)
+    if main_bool:
+        conn = sqlite3.connect('data//' + DATABASE_NAME)
+    else:
+        conn = sqlite3.connect('..//data//' + DATABASE_NAME)
     
     x_test_transposed = pd.read_sql_query("SELECT * FROM x_test", con = conn)
     
@@ -126,9 +135,12 @@ def get_test_observations():
     
     return x_test_normalized
 
-def get_test_labels():
+def get_test_labels(main_bool=False):
     print(f"Getting all test labels from '{DATABASE_NAME}'...")
-    conn = sqlite3.connect('..//data//' + DATABASE_NAME)
+    if main_bool:
+        conn = sqlite3.connect('data//' + DATABASE_NAME)
+    else:
+        conn = sqlite3.connect('..//data//' + DATABASE_NAME)
     
     y_test_transposed = pd.read_sql_query("SELECT * FROM y_test", con = conn)
     
